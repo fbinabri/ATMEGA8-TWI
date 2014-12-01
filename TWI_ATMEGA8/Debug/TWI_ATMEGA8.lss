@@ -1,0 +1,284 @@
+
+TWI_ATMEGA8.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000128  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .comment      00000030  00000000  00000000  0000017c  2**0
+                  CONTENTS, READONLY
+  2 .debug_aranges 00000088  00000000  00000000  000001ac  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_info   000004c6  00000000  00000000  00000234  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_abbrev 00000237  00000000  00000000  000006fa  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_line   0000022b  00000000  00000000  00000931  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_frame  000000e0  00000000  00000000  00000b5c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_str    000001c5  00000000  00000000  00000c3c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_loc    00000175  00000000  00000000  00000e01  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_ranges 00000058  00000000  00000000  00000f76  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	12 c0       	rjmp	.+36     	; 0x26 <__ctors_end>
+   2:	19 c0       	rjmp	.+50     	; 0x36 <__bad_interrupt>
+   4:	18 c0       	rjmp	.+48     	; 0x36 <__bad_interrupt>
+   6:	17 c0       	rjmp	.+46     	; 0x36 <__bad_interrupt>
+   8:	16 c0       	rjmp	.+44     	; 0x36 <__bad_interrupt>
+   a:	15 c0       	rjmp	.+42     	; 0x36 <__bad_interrupt>
+   c:	14 c0       	rjmp	.+40     	; 0x36 <__bad_interrupt>
+   e:	13 c0       	rjmp	.+38     	; 0x36 <__bad_interrupt>
+  10:	12 c0       	rjmp	.+36     	; 0x36 <__bad_interrupt>
+  12:	11 c0       	rjmp	.+34     	; 0x36 <__bad_interrupt>
+  14:	10 c0       	rjmp	.+32     	; 0x36 <__bad_interrupt>
+  16:	0f c0       	rjmp	.+30     	; 0x36 <__bad_interrupt>
+  18:	0e c0       	rjmp	.+28     	; 0x36 <__bad_interrupt>
+  1a:	0d c0       	rjmp	.+26     	; 0x36 <__bad_interrupt>
+  1c:	0c c0       	rjmp	.+24     	; 0x36 <__bad_interrupt>
+  1e:	0b c0       	rjmp	.+22     	; 0x36 <__bad_interrupt>
+  20:	0a c0       	rjmp	.+20     	; 0x36 <__bad_interrupt>
+  22:	09 c0       	rjmp	.+18     	; 0x36 <__bad_interrupt>
+  24:	08 c0       	rjmp	.+16     	; 0x36 <__bad_interrupt>
+
+00000026 <__ctors_end>:
+  26:	11 24       	eor	r1, r1
+  28:	1f be       	out	0x3f, r1	; 63
+  2a:	cf e5       	ldi	r28, 0x5F	; 95
+  2c:	d4 e0       	ldi	r29, 0x04	; 4
+  2e:	de bf       	out	0x3e, r29	; 62
+  30:	cd bf       	out	0x3d, r28	; 61
+  32:	60 d0       	rcall	.+192    	; 0xf4 <main>
+  34:	77 c0       	rjmp	.+238    	; 0x124 <_exit>
+
+00000036 <__bad_interrupt>:
+  36:	e4 cf       	rjmp	.-56     	; 0x0 <__vectors>
+
+00000038 <i2c_start>:
+{
+	// Select I2C Speed
+	
+	
+	// Configure I2C in Polling
+	TWCR |= (1 << TWINT) | (1 << TWEN) | (1 << TWEA) | (1 << TWSTA);	//Enable I2C,Enable ack
+  38:	86 b7       	in	r24, 0x36	; 54
+  3a:	84 6e       	ori	r24, 0xE4	; 228
+  3c:	86 bf       	out	0x36, r24	; 54
+	TWCR &= ~(1 << TWSTO);
+  3e:	86 b7       	in	r24, 0x36	; 54
+  40:	8f 7e       	andi	r24, 0xEF	; 239
+  42:	86 bf       	out	0x36, r24	; 54
+	
+	// Wait for the Start condition to be transmitted
+	while (!(TWCR & (1<<TWINT)));
+  44:	06 b6       	in	r0, 0x36	; 54
+  46:	07 fe       	sbrs	r0, 7
+  48:	fd cf       	rjmp	.-6      	; 0x44 <__SREG__+0x5>
+	
+	// Return the STATUS
+	if(I2C_STATUS == TW_START)
+  4a:	91 b1       	in	r25, 0x01	; 1
+  4c:	98 7f       	andi	r25, 0xF8	; 248
+  4e:	81 e0       	ldi	r24, 0x01	; 1
+  50:	98 30       	cpi	r25, 0x08	; 8
+  52:	09 f0       	breq	.+2      	; 0x56 <__SREG__+0x17>
+  54:	80 e0       	ldi	r24, 0x00	; 0
+		return 1;
+	else
+		return 0;
+}
+  56:	08 95       	ret
+
+00000058 <i2c_stop>:
+ *
+ */
+char i2c_stop()
+{
+	// Stop I2C
+	TWCR |= (1 << TWINT);
+  58:	86 b7       	in	r24, 0x36	; 54
+  5a:	80 68       	ori	r24, 0x80	; 128
+  5c:	86 bf       	out	0x36, r24	; 54
+	TWCR &= ~(1 << TWSTA);
+  5e:	86 b7       	in	r24, 0x36	; 54
+  60:	8f 7d       	andi	r24, 0xDF	; 223
+  62:	86 bf       	out	0x36, r24	; 54
+	TWCR |= (1 << TWSTO) | (1 << TWEN);
+  64:	86 b7       	in	r24, 0x36	; 54
+  66:	84 61       	ori	r24, 0x14	; 20
+  68:	86 bf       	out	0x36, r24	; 54
+	
+	if(I2C_STATUS == TW_SR_STOP)
+  6a:	91 b1       	in	r25, 0x01	; 1
+  6c:	98 7f       	andi	r25, 0xF8	; 248
+  6e:	81 e0       	ldi	r24, 0x01	; 1
+  70:	90 3a       	cpi	r25, 0xA0	; 160
+  72:	09 f0       	breq	.+2      	; 0x76 <i2c_stop+0x1e>
+  74:	80 e0       	ldi	r24, 0x00	; 0
+		return 1;
+	else
+		return 0;
+}
+  76:	08 95       	ret
+
+00000078 <i2c_write>:
+ * 
+ *
+ */
+char i2c_write(char data_to_be_written)
+{
+	TWDR = data_to_be_written;
+  78:	83 b9       	out	0x03, r24	; 3
+	TWINT_FLAG_CLR;
+  7a:	84 e8       	ldi	r24, 0x84	; 132
+  7c:	86 bf       	out	0x36, r24	; 54
+	
+	// Wait for the Data to be transmitted
+	while (!(TWCR & (1<<TWINT)));
+  7e:	06 b6       	in	r0, 0x36	; 54
+  80:	07 fe       	sbrs	r0, 7
+  82:	fd cf       	rjmp	.-6      	; 0x7e <i2c_write+0x6>
+	
+	// Read TWSR and check whether the ack received
+	if((I2C_STATUS == TW_MT_SLA_ACK) || (I2C_STATUS == TW_MT_DATA_ACK) || (I2C_STATUS == TW_MR_SLA_ACK))
+  84:	81 b1       	in	r24, 0x01	; 1
+  86:	88 7f       	andi	r24, 0xF8	; 248
+  88:	88 31       	cpi	r24, 0x18	; 24
+  8a:	59 f0       	breq	.+22     	; 0xa2 <i2c_write+0x2a>
+  8c:	81 b1       	in	r24, 0x01	; 1
+  8e:	88 7f       	andi	r24, 0xF8	; 248
+  90:	88 32       	cpi	r24, 0x28	; 40
+  92:	49 f0       	breq	.+18     	; 0xa6 <i2c_write+0x2e>
+  94:	91 b1       	in	r25, 0x01	; 1
+  96:	98 7f       	andi	r25, 0xF8	; 248
+  98:	81 e0       	ldi	r24, 0x01	; 1
+  9a:	90 34       	cpi	r25, 0x40	; 64
+  9c:	29 f0       	breq	.+10     	; 0xa8 <i2c_write+0x30>
+  9e:	80 e0       	ldi	r24, 0x00	; 0
+  a0:	08 95       	ret
+		return 1;
+  a2:	81 e0       	ldi	r24, 0x01	; 1
+  a4:	08 95       	ret
+  a6:	81 e0       	ldi	r24, 0x01	; 1
+	else
+		return 0;
+}
+  a8:	08 95       	ret
+
+000000aa <rtc_write>:
+ */ 
+
+#include "rtc.h"
+ 
+char rtc_write(uchar address,uchar data)
+{
+  aa:	cf 93       	push	r28
+  ac:	df 93       	push	r29
+  ae:	c8 2f       	mov	r28, r24
+  b0:	d6 2f       	mov	r29, r22
+	char ret = 0;
+	if(i2c_start(0))
+  b2:	80 e0       	ldi	r24, 0x00	; 0
+  b4:	c1 df       	rcall	.-126    	; 0x38 <i2c_start>
+  b6:	88 23       	and	r24, r24
+  b8:	91 f0       	breq	.+36     	; 0xde <rtc_write+0x34>
+	if(i2c_write(RTC_WRITE_ADD))
+  ba:	80 ed       	ldi	r24, 0xD0	; 208
+  bc:	dd df       	rcall	.-70     	; 0x78 <i2c_write>
+  be:	88 23       	and	r24, r24
+  c0:	81 f0       	breq	.+32     	; 0xe2 <rtc_write+0x38>
+	if(i2c_write(address))
+  c2:	8c 2f       	mov	r24, r28
+  c4:	d9 df       	rcall	.-78     	; 0x78 <i2c_write>
+  c6:	88 23       	and	r24, r24
+  c8:	71 f0       	breq	.+28     	; 0xe6 <rtc_write+0x3c>
+	if(i2c_write(data))
+  ca:	8d 2f       	mov	r24, r29
+  cc:	d5 df       	rcall	.-86     	; 0x78 <i2c_write>
+  ce:	88 23       	and	r24, r24
+  d0:	61 f0       	breq	.+24     	; 0xea <rtc_write+0x40>
+	if(i2c_stop())
+  d2:	c2 df       	rcall	.-124    	; 0x58 <i2c_stop>
+  d4:	91 e0       	ldi	r25, 0x01	; 1
+  d6:	81 11       	cpse	r24, r1
+  d8:	09 c0       	rjmp	.+18     	; 0xec <rtc_write+0x42>
+  da:	90 e0       	ldi	r25, 0x00	; 0
+  dc:	07 c0       	rjmp	.+14     	; 0xec <rtc_write+0x42>
+
+#include "rtc.h"
+ 
+char rtc_write(uchar address,uchar data)
+{
+	char ret = 0;
+  de:	90 e0       	ldi	r25, 0x00	; 0
+  e0:	05 c0       	rjmp	.+10     	; 0xec <rtc_write+0x42>
+  e2:	90 e0       	ldi	r25, 0x00	; 0
+  e4:	03 c0       	rjmp	.+6      	; 0xec <rtc_write+0x42>
+  e6:	90 e0       	ldi	r25, 0x00	; 0
+  e8:	01 c0       	rjmp	.+2      	; 0xec <rtc_write+0x42>
+  ea:	90 e0       	ldi	r25, 0x00	; 0
+	if(i2c_write(address))
+	if(i2c_write(data))
+	if(i2c_stop())
+		ret = 1;
+	return ret;	
+}
+  ec:	89 2f       	mov	r24, r25
+  ee:	df 91       	pop	r29
+  f0:	cf 91       	pop	r28
+  f2:	08 95       	ret
+
+000000f4 <main>:
+#define LED_CLR		PORTB &= ~(1 << PINB0)
+
+int main(void)
+{
+	char data;
+	DDRB |= 1 << PINB0;
+  f4:	b8 9a       	sbi	0x17, 0	; 23
+	LED_CLR;
+  f6:	c0 98       	cbi	0x18, 0	; 24
+	
+	rtc_write(0x03,0x01);	// Day 
+  f8:	61 e0       	ldi	r22, 0x01	; 1
+  fa:	83 e0       	ldi	r24, 0x03	; 3
+  fc:	d6 df       	rcall	.-84     	; 0xaa <rtc_write>
+	
+	rtc_write(0x04,0x26);	// Date
+  fe:	66 e2       	ldi	r22, 0x26	; 38
+ 100:	84 e0       	ldi	r24, 0x04	; 4
+ 102:	d3 df       	rcall	.-90     	; 0xaa <rtc_write>
+	rtc_write(0x05,0x10);	// Month
+ 104:	60 e1       	ldi	r22, 0x10	; 16
+ 106:	85 e0       	ldi	r24, 0x05	; 5
+ 108:	d0 df       	rcall	.-96     	; 0xaa <rtc_write>
+	rtc_write(0x06,0x14);	// Year
+ 10a:	64 e1       	ldi	r22, 0x14	; 20
+ 10c:	86 e0       	ldi	r24, 0x06	; 6
+ 10e:	cd df       	rcall	.-102    	; 0xaa <rtc_write>
+	
+	rtc_write(0x00,0x00);
+ 110:	60 e0       	ldi	r22, 0x00	; 0
+ 112:	80 e0       	ldi	r24, 0x00	; 0
+ 114:	ca df       	rcall	.-108    	; 0xaa <rtc_write>
+	rtc_write(0x01,0x59);
+ 116:	69 e5       	ldi	r22, 0x59	; 89
+ 118:	81 e0       	ldi	r24, 0x01	; 1
+ 11a:	c7 df       	rcall	.-114    	; 0xaa <rtc_write>
+	rtc_write(0x02,0x71);	
+ 11c:	61 e7       	ldi	r22, 0x71	; 113
+ 11e:	82 e0       	ldi	r24, 0x02	; 2
+ 120:	c4 df       	rcall	.-120    	; 0xaa <rtc_write>
+ 122:	ff cf       	rjmp	.-2      	; 0x122 <main+0x2e>
+
+00000124 <_exit>:
+ 124:	f8 94       	cli
+
+00000126 <__stop_program>:
+ 126:	ff cf       	rjmp	.-2      	; 0x126 <__stop_program>
